@@ -2,7 +2,7 @@
 This library allows you to control an ODrive motor controller using a microcontroller.
 
 ## Overview
-This library allows you to control the ODrive motor controller using a microcontroller. As of now, it only works with either the Arduino or the Teensy microcontrollers, but will be extended to any microcontroller in the future. There are two implementations of this library, a standalone set of functions and a class implementation.
+This library allows you to control the ODrive motor controller using a microcontroller. As of now, it only works with either the Arduino or the Teensy microcontrollers, but will be extended to any microcontroller in the future. There are two implementations of this library, a standalone set of functions and a class implementation. Refer to "startup_guide.md" for tips on getting a new motor configured to run with the ODrive
 
 ### Required Libraries
 - "ODriveArduino" - Performs low level ASCII communication between the microcontroller and the ODrive: https://github.com/odriverobotics/ODrive/tree/master/Arduino/ODriveArduino.
