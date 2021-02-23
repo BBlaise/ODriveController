@@ -35,8 +35,8 @@ const int encoder0B_pin = 6;		// B channel of AS5601 encoder0 (master)
 //const int encoder1A_pin = 7;		// A channel of AS5601 encoder1 (slave)
 //const int encoder1B_pin = 8;		// B channel of AS5601 encoder1 (slave)
 const int led_pin = 13;
-const int rx_pin = 0;			// connect to ODrive TX pin
-const int tx_pin = 1;			// connect to ODrive RX pin
+const int rx_pin = 0;			// connect to ODrive TX pin (pin 1)
+const int tx_pin = 1;			// connect to ODrive RX pin (pin 2)
 
 // Objects
 IntervalTimer timer0;

@@ -26,6 +26,7 @@ void writeControlMode(int control_mode_);
 void writeInputMode(int input_mode_);
 
 /* ---------------- Control Parameters to Adjust ------------------------ */
+float readBusVoltage(void);
 float readPosGain(void);
 void writePosGain(float pos_gain_);
 float readVelGain(void);

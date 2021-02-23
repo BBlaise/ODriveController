@@ -9,11 +9,12 @@
 #include "Arduino.h"
 #include "HardwareSerial.h"
 
+
 float readBusVoltage(void){
 		Serial1 << "r vbus_voltage\n";
 		Serial << "Vbus voltage: " << odrive.readFloat() << '\n';
 }
-
+/*
 float readPosition(void){
 	Serial1 << "r axis" << 0 << ".encoder.pos_estimate\n";
 	return odrive.readFloat();
@@ -45,4 +46,5 @@ float readVelIntegralGain(void){
 	Serial1 << "r axis" << 0 << ".controller.config.vel_integral_gain\n";
 	return odrive.readFloat();
 }
+*/
 
