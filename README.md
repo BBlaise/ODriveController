@@ -56,11 +56,11 @@ sr\n
 ```
 If you want to save the configuration, transmit
 ```
-sr
+sr\n
 ```
 If you want to erase the configuration, transmit
 ```
-se
+se\n
 ```
 
 ## Position Control

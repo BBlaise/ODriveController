@@ -8,7 +8,6 @@
 
 // Custom Teensy Libraries
 #include "HardwareSerial.h"
-#include "SoftwareSerial.h"
 #include "ODriveArduino.h"
 #include "TeensyI2C.h"
 #include "teensy_uart.h"
@@ -56,8 +55,8 @@ volatile int slave_count = 0;
 volatile float slave_angle = 0;
 
 // Runtime Edits
-bool configure_hall_sensors = true;
-//bool configure_hall_sensors = false;
+bool configure0 = false;
+bool configure1 = true;
 
 void setup(){
 	Wire.begin(I2C_MASTER, 0x00, I2C_PINS_18_19, I2C_PULLUP_EXT, 100000); // SCL = 19, SDA = 18, 100 kHz
@@ -75,27 +74,29 @@ void setup(){
 	while(!Serial1);
 	Serial.println("ODrive connected");
 
-	hall_sensor0.setABN(as5601.ABN1024);
-	delay(10);
-	Serial.println(hall_sensor0.readMagnitude());
-	Serial.println("hall_sensor0 configured");
-	master_cpr = hall_sensor0.n_pulses;
-	//Serial.println(master_cpr);
+	if(configure0 == true){
+		hall_sensor0.setABN(as5601.ABN1024);
+		delay(10);
+		Serial.println(hall_sensor0.readMagnitude());
+		Serial.println("hall_sensor0 configured");
+		master_cpr = hall_sensor0.n_pulses;
+		encoder0.write(0);
+		//Serial.println(master_cpr);
+	}
 
-	hall_sensor1.setABN(as5601.ABN1024);
-	delay(10);
-	Serial.println(hall_sensor1.readMagnitude());
-	Serial.println("hall_sensor1 configured");
-	slave_cpr = hall_sensor1.n_pulses;
-	//Serial.println(slave_cpr);
-
-	// Configure encoders
-	encoder0.write(0);
-	encoder1.write(0);
+	if(configure1 == true){
+		hall_sensor1.setABN(as5601.ABN1024);
+		delay(10);
+		Serial.println(hall_sensor1.readMagnitude());
+		Serial.println("hall_sensor1 configured");
+		slave_cpr = hall_sensor1.n_pulses;
+		encoder1.write(0);
+		//Serial.println(slave_cpr);
+	}
 
 	// Configure and Activate Timers
 	timer0.priority(180);
-	//timer0.begin(timer0ISR, timer0_period*1000);  // start program/timer ISR
+	timer0.begin(timer0ISR, timer0_period*1000);  // start program/timer ISR
 }
 
 void loop(){}
@@ -103,13 +104,17 @@ void loop(){}
 void timer0ISR(void){
 	//blinkLED(led_pin, 150);
 
-	master_count = encoder0.read();
-	master_angle = master_count * 360 / master_cpr;
-	//Serial.println(master_count);
+	if(configure0 == true){
+		master_count = encoder0.read();
+		master_angle = master_count * 360 / master_cpr;
+		Serial.println(master_count);
+	}
 
-	slave_count = encoder1.read();
-	slave_angle = slave_count * 360 / slave_cpr;
-	Serial.println(slave_count);
+	if(configure1 == true){
+		slave_count = encoder1.read();
+		slave_angle = slave_count * 360 / slave_cpr;
+		Serial.println(slave_count);
+	}
 }
 
 void blinkLED(int led_pin_, int on_time){

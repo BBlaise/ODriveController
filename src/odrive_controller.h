@@ -1,7 +1,7 @@
 /*
- * teensy_uart.h
+ * odrive_controller.h
  *
- *  Created on: May 31, 2020
+ *  Created on: January 31, 2021
  *      Author: Bryan
  */
 
@@ -11,69 +11,83 @@
 #include <stdint.h>
 #include "Arduino.h"
 #include "HardwareSerial.h"
+#include "teensy_uart.h"
 
-template<class T> inline Print& operator <<(Print &obj,     T arg) { obj.print(arg);    return obj; }
-template<>        inline Print& operator <<(Print &obj, float arg) { obj.print(arg, 4); return obj; }
-
-// General Functions
-void reboot(void);
-void saveConfiguration(void);
-void eraseConfiguration(void);
-int readCurrentState(void);
-int writeRequestedState(void);
-void stopMotor(void);
+/* ---------------- General Functions ------------------------ */
+void odriveReboot(void);
+void odriveSaveConfiguration(void);
+void odriveEraseConfiguration(void);
+unsigned int odriveReadState(int axis_num);
+void odriveWriteState(int axis_num, unsigned int state);
+void odriveIdleMotor(int axis_num);
+void odriveClearErrors(int axis_num);
+void odriveReadOdrvErrors(void);		// figure out
+unsigned int odriveReadAxisErrors(int axis_num);		// figure out
 void writeControlMode(int control_mode_);
 void writeInputMode(int input_mode_);
+float odriveReadBusVoltage(void);
 
-/* ---------------- Control Parameters to Adjust ------------------------ */
-float readBusVoltage(void);
-float readPosGain(void);
-void writePosGain(float pos_gain_);
-float readVelGain(void);
-void writeVelGain(float vel_gain_);
-float readVelIntegralGain(void);
-void writeVelIntegralGain(float vel_integral_gain_);
-float readInertia(void);
-void writeInertia(float inertia_);
-float readTrajVelLimit(void);
-void writeTrajVelLimit(float vel_limit_);
-float readTrajAccelLimit(void);
-void writeTrajAccelLimit(float accel_limit_);
-float readTrajDecelLimit(void);
-void writeTrajDecelLimit(float decel_limit_);
+/* ---------------- Control Parameters ------------------------ */
+float odriveReadPosGain(int axis_num);
+void odriveWritePosGain(int axis_num, float gain);
+float odriveReadVelGain(int axis_num);
+void odriveWriteVelGain(int axis_num, float gain);
+float odriveReadVelIntegratorGain(int axis_num);
+void odriveWriteVelIntegratorGain(int axis_num, float gain);
+float odriveReadCurrentControlBandwidth(int axis_num);
+void odriveWriteCurrentControlBandwidth(int axis_num, float bandwidth);
+float odriveReadInputFilterBandwidth(int axis_num);
+void odriveWriteInputFilterBandwidth(int axis_num, float bandwidth);
+float odriveReadTrapTrajVelLimit(int axis_num);
+void odriveWriteTrapTrajVelLimit(int axis_num, float limit);
+float odriveReadTrapTrajAccelLimit(int axis_num);
+void odriveWriteTrapTrajAccelLimit(int axis_num, float limit);
+float odriveReadTrapTrajDecelLimit(int axis_num);
+void odriveWriteTrapTrajDecelLimit(int axis_num, float limit);
 
-/* ---------------- Transmit Functions - Binary ------------------------ */
-// Position Control
-float readPosition(void);
-void writePosition(float position_);
+/* ---------------- Control Functions ------------------------ */
+void odriveZeroEncoder(int axis_num);
+void odriveSetEncodercount(int axis_num, int count);
+float odriveReadPosEstimate(int axis_num);
+void odriveWriteInputPos(int axis_num, float position);
+float odriveReadVelocityEstimate(int axis_num);
+void odriveWriteVelocity(int axis_num, float velocity);
+float odriveReadTorque(int axis_num);
+void odriveWriteTorque(int axis_num, float torque);
+float odriveReadIq(int axis_num);
+float odriveReadId(int axis_num);
 
-// Speed Control
-float readVelocity(void);
-void writeVelocity(float velocity_);
+/* ---------------- Motor Parameters ------------------------ */
+float odriveReadPhaseResistance(int axis_num);
+void odriveWritePhaseResistance(int axis_num, float resistance);
+float odriveReadPhaseInductance(int axis_num);
+void odriveWritePhaseInductance(int axis_num, float inductance);
 
-// Torque/Current Control
-float readTorque(void);
-void writeTorque(float velocity_);
+enum error : unsigned int {
+//enum axis_error {
+	ERROR_NONE = 0x00,
+	ERROR_INVALID_STATE = 0x01,
+	ERROR_DC_BUS_UNDER_VOLTAGE = 0x02,
+	ERROR_DC_BUS_OVER_VOLTAGE = 0x04,
+	ERROR_MOTOR_DISARMED = 0x20,
+	ERROR_MOTOR_FAILED = 0x40,
+	ERROR_ENCODR_FAILED = 0x100,
+	ERROR_CONTROLLER_FAILED = 0x200,
+};
 
-/* ---------------- Receive Functions - Binary ------------------------ */
-// Receive Individual Values
-float uartReceiveFloat(void);
-int uartReceiveInt(void);
-int32_t uartReceiveInt32(void);
-int16_t uartReceiveInt16(void);
-int8_t uartReceiveInt8(void);
-uint32_t uartReceiveUint32_t(void);
-uint16_t uartReceiveUint16_t(void);
-
-// Receive An Array/Vector of Values
-void uartReceive(float* rx, int n_rx);
-void uartReceive(int* rx, int n_rx);
-void uartReceive(int32_t* rx, int n_rx);
-void uartReceive(int16_t* rx, int n_rx);
-void uartReceive(int8_t* rx, int n_rx);
-void uartReceive(uint32_t* rx, int n_rx);
-void uartReceive(uint16_t* rx, int n_rx);
-void uartReceive(uint8_t* rx, int n_rx);
-
+enum axis_state {
+	AXIS_STATE_UNDEFINED = 0,
+	AXIS_STATE_IDLE = 1,
+	AXIS_STATE_STARTUP_SEQUENCE = 2,
+	AXIS_STATE_FULL_CALIBRATION_SEQUENCE = 3,
+	AXIS_STATE_MOTOR_CALIBRATION = 4,
+	AXIS_STATE_SENSORLESS_CONTROL = 5,
+	AXIS_STATE_ENCODER_INDEX_SEARCH = 6,
+	AXIS_STATE_ENCODER_OFFSET_CALIBRATION = 7,
+	AXIS_STATE_CLOSED_LOOP_CONTROL = 8,
+	AXIS_STATE_LOCKIN_SPIN = 9,
+	AXIS_STATE_ENCODER_DIR_FIND = 10,
+	AXIS_STATE_HOMING = 11
+};
 
 #endif /* ODRIVE_CONTROLLER_H_ */
